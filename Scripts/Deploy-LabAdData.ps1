@@ -29,10 +29,11 @@ if ((Test-LabAdUserList -Path $OldTestData) -eq $True) {
     # Create Service Accounts
     1..5 | ForEach-Object {
         $Params = @{
-            Path = "OU=PigPen-ServiceAccounts,DC=contoso,DC=com"
-            samaccountname = "Service-$($_)"
-            name = "Service-$($_)"
-            description = "A service account"
+            Path            = "OU=PigPen-ServiceAccounts,DC=contoso,DC=com"
+            samaccountname  = "Service-$($_)"
+            name            = "Service-$($_)"
+            description     = "A service account"
+            enabled         = $true
         }
         New-ADUser @Params
     }
@@ -40,10 +41,11 @@ if ((Test-LabAdUserList -Path $OldTestData) -eq $True) {
     # Create Admin Accounts
     1..3 | ForEach-Object {
         $Params = @{
-            Path = "OU=PigPen-Admins,DC=contoso,DC=com"
-            samaccountname = "Admin-$($_)"
-            name = "Admin-$($_)"
-            description = "A Domain Admin account"
+            Path            = "OU=PigPen-Admins,DC=contoso,DC=com"
+            samaccountname  = "Admin-$($_)"
+            name            = "Admin-$($_)"
+            description     = "A Domain Admin account"
+            enabled         = $true
         }
         New-ADUser @Params
         Add-ADGroupMember -Identity "Domain Admins" -Member "Admin-$($_)"
