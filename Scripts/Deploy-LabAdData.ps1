@@ -27,6 +27,8 @@ if ((Test-LabAdUserList -Path $OldTestData) -eq $True) {
     Import-LabAdUser -OU "PigPen-Users" -Path $NewTestData
 
     # Create Service Accounts
+    New-ADGroup -Name "Service Accounts" -GroupScope "DomainLocal" -Description "Service Account Security Group"
+
     1..5 | ForEach-Object {
         $Params = @{
             Path            = "OU=PigPen-ServiceAccounts,DC=contoso,DC=com"
@@ -36,6 +38,7 @@ if ((Test-LabAdUserList -Path $OldTestData) -eq $True) {
             enabled         = $true
         }
         New-ADUser @Params
+        Add-ADGroupMember -Identity "Service Accounts" -Member "Service-$($_)"
     }
 
     # Create Admin Accounts
