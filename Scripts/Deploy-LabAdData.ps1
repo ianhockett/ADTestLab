@@ -19,7 +19,7 @@ if ((Test-LabAdUserList -Path $OldTestData) -eq $True) {
         try {
             Get-ADOrganizationalUnit -Identity "OU=$OU,DC=contoso,DC=com" >> $null
         } catch {
-            New-ADOrganizationalUnit -Name $OU
+            New-ADOrganizationalUnit -Name $OU -ProtectedFromAccidentalDeletion $False
         }
     }
 
