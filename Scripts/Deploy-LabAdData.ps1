@@ -6,16 +6,46 @@ Get-ChildItem -Path "$($PSScriptRoot)\*" -File -Include *.ps1 |
         }
     }
 
-$TestDataPath = "..\Data\fakeuserdata.csv"
-try {
-    if ((Test-LabAdUserList -Path $TestDataPath) -eq $True) {
-        Write-Host "All Good"
-        Remove-LabAdUserDuplicate -Path $TestDataPath
-        New-ADOrganizationalUnit -Name "PigPen-Users"
-        Import-LabAdUser -OrganizationlUnit "PigPen-Users"
-    } else {
-        throw
+$TestDataPath = "..\Data"
+$OldTestData = "$TestDataPath\fakeuserdata.csv"
+$NewTestData = "$TestDataPath\newfakeuserdata.csv"
+
+$OUs = "PigPen-Users","PigPen-Admins","PigPen-ServiceAccounts"
+
+if ((Test-LabAdUserList -Path $OldTestData) -eq $True) {
+    Remove-LabAdUserDuplicate -Path $OldTestData -Outpath $NewTestData
+
+    ForEach ($OU in $OUs) {
+        try {
+            Get-ADOrganizationalUnit -Identity "OU=$OU,DC=contoso,DC=com" >> $null
+        } catch {
+            New-ADOrganizationalUnit -Name $OU
+        }
     }
-} catch {
-    break
+
+    # Create Test Users
+    Import-LabAdUser -OU "PigPen-Users" -Path $NewTestData
+
+    # Create Service Accounts
+    1..5 | ForEach-Object {
+        $Params = @{
+            Path = "OU=PigPen-ServiceAccounts,DC=contoso,DC=com"
+            samaccountname = "Service-$($_)"
+            name = "Service-$($_)"
+            description = "A service account"
+        }
+        New-ADUser @Params
+    }
+
+    # Create Admin Accounts
+    1..3 | ForEach-Object {
+        $Params = @{
+            Path = "OU=PigPen-Admins,DC=contoso,DC=com"
+            samaccountname = "Admin-$($_)"
+            name = "Admin-$($_)"
+            description = "A Domain Admin account"
+        }
+        New-ADUser @Params
+        Add-ADGroupMember -Identity "Domain Admins" -Member "Admin-$($_)"
+    }
 }
