@@ -10,6 +10,7 @@ $TestDataPath = "..\Data"
 $OldTestData = "$TestDataPath\fakeuserdata.csv"
 $NewTestData = "$TestDataPath\newfakeuserdata.csv"
 
+$Domain = Get-ADDomain
 $OUs = "PigPen-Users","PigPen-Admins","PigPen-ServiceAccounts"
 
 if ((Test-LabAdUserList -Path $OldTestData) -eq $True) {
@@ -17,7 +18,7 @@ if ((Test-LabAdUserList -Path $OldTestData) -eq $True) {
 
     ForEach ($OU in $OUs) {
         try {
-            Get-ADOrganizationalUnit -Identity "OU=$OU,DC=contoso,DC=com" >> $null
+            Get-ADOrganizationalUnit -Identity "OU=$OU,$($Domain.DistinguishedName)" >> $null
         } catch {
             New-ADOrganizationalUnit -Name $OU -ProtectedFromAccidentalDeletion $False
         }
@@ -31,7 +32,7 @@ if ((Test-LabAdUserList -Path $OldTestData) -eq $True) {
 
     1..5 | ForEach-Object {
         $Params = @{
-            Path            = "OU=PigPen-ServiceAccounts,DC=contoso,DC=com"
+            Path            = "OU=PigPen-ServiceAccounts,$($Domain.DistinguishedName)"
             samaccountname  = "Service-$($_)"
             name            = "Service-$($_)"
             description     = "A service account"
@@ -44,7 +45,7 @@ if ((Test-LabAdUserList -Path $OldTestData) -eq $True) {
     # Create Admin Accounts
     1..3 | ForEach-Object {
         $Params = @{
-            Path            = "OU=PigPen-Admins,DC=contoso,DC=com"
+            Path            = "OU=PigPen-Admins,$($Domain.DistinguishedName)"
             samaccountname  = "Admin-$($_)"
             name            = "Admin-$($_)"
             description     = "A Domain Admin account"
