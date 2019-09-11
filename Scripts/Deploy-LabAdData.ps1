@@ -2,7 +2,7 @@
 . "$($PSScriptRoot)\Remove-LabAdUserDuplicate.ps1"
 . "$($PSScriptRoot)\Import-LabAdUser.ps1"
 
-
+Set-Location $PSScriptRoot
 $TestDataPath = "..\Data"
 $OldTestData = "$TestDataPath\fakeuserdata.csv"
 $NewTestData = "$TestDataPath\newfakeuserdata.csv"
@@ -57,8 +57,8 @@ Import-LabAdUser -OU "PigPen-Users" -Path $NewTestData -ErrorAction SilentlyCont
     }
 
     if (!((Get-ADGroupMember -Identity "Service Accounts" |
-            select -ExpandProperty samaccountname) -contains $Params.samaccountname)) {
-        Add-ADGroupMember -Identity "Service Accounts" -Member (Get-ADUser -Identity $Params.samaccountname)
+            Select-Object -ExpandProperty samaccountname) -contains $Params.samaccountname)) {
+        Add-ADGroupMember -Identity "Service Accounts" -Members (Get-ADUser -Identity $Params.samaccountname)
     }
 }
 
@@ -81,7 +81,7 @@ Import-LabAdUser -OU "PigPen-Users" -Path $NewTestData -ErrorAction SilentlyCont
 
     if (!((Get-ADGroupMember -Identity "Domain Admins" |
             select -ExpandProperty samaccountname) -contains $Params.samaccountname)) {
-        Add-ADGroupMember -Identity "Domain Admins" -Member (Get-ADUser -Identity $Params.samaccountname)
+        Add-ADGroupMember -Identity "Domain Admins" -Members (Get-ADUser -Identity $Params.samaccountname)
     }
 }
 
@@ -104,9 +104,9 @@ Import-LabAdUser -OU "PigPen-Users" -Path $NewTestData -ErrorAction SilentlyCont
 
     if (!((Get-ADGroupMember -Identity "IT Admins" |
             select -ExpandProperty samaccountname) -contains $Params.samaccountname)) {
-        Add-ADGroupMember -Identity "IT Admins" -Member (Get-ADUser -Identity $Params.samaccountname)
+        Add-ADGroupMember -Identity "IT Admins" -Members (Get-ADUser -Identity $Params.samaccountname)
     }
 }
 
 # Add IT Admins group to Domain Admins group (results in nested Domain Admin membership for IT Admins)
-Add-ADGroupMember -Identity "Domain Admins" -Member (Get-ADGroup -Identity "IT Admins")
+Add-ADGroupMember -Identity "Domain Admins" -Members (Get-ADGroup -Identity "IT Admins")
